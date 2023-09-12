@@ -1,4 +1,4 @@
-    @Test
+ @Test
     @Order(3)
     public void test_getEmployeeByName() {
         List<Employee> allEmployees = new ArrayList<Employee>();
@@ -11,8 +11,8 @@
         when(employeeRepository.findByName(employeeName)).thenReturn(allEmployees); // Mocking
 
         String expectedName = "Arjun Sharma";
-        String actualName = employeeService.findEmployeeByName(expectedName).getName();
+        List<Employee> actualName = employeeService.findEmployeeByName(expectedName);
 
-        assertEquals(employeeName, employeeService.findEmployeeByName(actualName));
+        assertEquals(expectedName, actualName);
 //        assertThat(actualName).isEqualTo(expectedName);
     }
