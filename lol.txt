@@ -1,6 +1,45 @@
- @Test
+package com;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import com.model.Employee;
+import com.repository.EmployeeRepository;
+import com.service.EmployeeService;
+
+@SpringBootTest(classes = { ServiceMockitoTest.class })
+public class ServiceMockitoTest {
+
+    @Mock
+    EmployeeRepository employeeRepository;
+
+    @InjectMocks
+    EmployeeService employeeService;
+
+    @Test
+    @Order(1)
+    public void test_getAllEmployee() {
+        List<Employee> allEmployees = new ArrayList<Employee>();
+
+        allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
+        allEmployees.add(new Employee(2, "Sonu Rama", 27250.00));
+
+        when(employeeRepository.findAll()).thenReturn(allEmployees); // Mocking
+
+        assertThat(employeeService.findAllEmployees().size()).isEqualTo(3);
+    }
+    
+    @Test
     @Order(2)
-    public void test_getEmployeeByName() {
+    public void test_getEmployeeById() {
     	List<Employee> allEmployees = new ArrayList<Employee>();
 
         allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
@@ -9,6 +48,9 @@
         int employeeId=1;
         
         when(employeeRepository.findAll()).thenReturn(allEmployees);
-        assertThat(employeeService.findById(employeeId).getId(),employeeId);
+       
+        assertThat(employeeService.findById(employeeId).getId()).isEqualTo(employeeId);
         
     }
+    
+}
