@@ -1,66 +1,18 @@
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import com.model.Employee;
-import com.repository.EmployeeRepository;
-import com.service.EmployeeService;
-
-@SpringBootTest(classes = { ServiceMockitoTest.class })
-public class ServiceMockitoTest {
-
-    @Mock
-    EmployeeRepository employeeRepository;
-
-    @InjectMocks
-    EmployeeService employeeService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    @Order(1)
-    public void test_getAllEmployee() {
+   @Test
+    @Order(3)
+    public void test_getEmployeeByName() {
         List<Employee> allEmployees = new ArrayList<Employee>();
 
         allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
         allEmployees.add(new Employee(2, "Sonu Rama", 27250.00));
 
-        when(employeeRepository.findAll()).thenReturn(allEmployees); // Mocking
+        String employeeName = "Arjun Sharma";
 
-        int expectedSize = 2;
-        int actualSize = employeeService.findAllEmployees().size();
+        when(employeeRepository.findByName(employeeName)).thenReturn(java.util.Optional.ofNullable(allEmployees.get(0))); // Mocking
 
-        assertEquals(expectedSize, actualSize);
+        String expectedName = "Arjun Sharma";
+        String actualName = employeeService.findEmployeeByName(expectedName).getName();
+
+//        assertEquals(expectedId, actualId);
+        assertThat(actualName).isEqualTo(expectedName);
     }
-
-    @Test
-    @Order(2)
-    public void test_getEmployeeById() {
-        List<Employee> allEmployees = new ArrayList<Employee>();
-
-        allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
-        allEmployees.add(new Employee(2, "Sonu Rama", 27250.00));
-
-        int employeeId = 1;
-
-        when(employeeRepository.findById(employeeId)).thenReturn(java.util.Optional.ofNullable(allEmployees.get(0))); // Mocking
-
-        int expectedId = 1;
-        int actualId = employeeService.findById(employeeId).getId();
-
-        assertEquals(expectedId, actualId);
-    }
-}
