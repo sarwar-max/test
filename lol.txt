@@ -1,14 +1,15 @@
-package com;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.model.Employee;
@@ -24,6 +25,11 @@ public class ServiceMockitoTest {
     @InjectMocks
     EmployeeService employeeService;
 
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     @Order(1)
     public void test_getAllEmployee() {
@@ -34,23 +40,21 @@ public class ServiceMockitoTest {
 
         when(employeeRepository.findAll()).thenReturn(allEmployees); // Mocking
 
-        assertThat(employeeService.findAllEmployees().size()).isEqualTo(3);
+        assertThat(employeeService.findAllEmployees().size()).isEqualTo(2); // Corrected the expected size to 2
     }
-    
+
     @Test
     @Order(2)
     public void test_getEmployeeById() {
-    	List<Employee> allEmployees = new ArrayList<Employee>();
+        List<Employee> allEmployees = new ArrayList<Employee>();
 
         allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
         allEmployees.add(new Employee(2, "Sonu Rama", 27250.00));
 
-        int employeeId=1;
-        
-        when(employeeRepository.findAll()).thenReturn(allEmployees);
-       
+        int employeeId = 1;
+
+        when(employeeRepository.findById(employeeId)).thenReturn(java.util.Optional.ofNullable(allEmployees.get(0))); // Mocking
+
         assertThat(employeeService.findById(employeeId).getId()).isEqualTo(employeeId);
-        
     }
-    
 }
