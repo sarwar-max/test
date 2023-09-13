@@ -1,7 +1,7 @@
 @Test
 	@Order(4)
 	public void testSaveEmployee() {
-		Employee employee = new Employee("Manish Das", 32450.00);
+		Employee employee = new Employee(1, "Rehan Sarwar", 42450.00);
 		Employee createEmployee = employeeService.saveEmployee(employee);
 
 		assertNotNull(createEmployee.getId());
