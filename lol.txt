@@ -1,7 +1,5 @@
 package com.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.setExtractBareNamePropertyMethods;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -10,12 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.model.Employee;
 import com.repository.EmployeeRepository;
@@ -23,67 +20,62 @@ import com.repository.EmployeeRepository;
 @SpringBootTest
 class EmployeeServiceTest {
 
-	@Autowired
-	private EmployeeService employeeService;
+    @Autowired
+    private EmployeeService employeeService;
 
-	@MockBean
-	private EmployeeRepository employeeRepository;
+    @Mock
+    private EmployeeRepository employeeRepository;
 
-	@BeforeEach
-	void setup() {
-		Employee employee = new Employee(1, "Rehan Sarwar", 42450.00);
-		Optional<Employee> employeeOptional = Optional.of(employee);
-		Mockito.when(employeeRepository.findById(1)).thenReturn(employeeOptional);
-	}
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.initMocks(this); // Initialize Mockito annotations
+        Employee employee = new Employee(1, "Rehan Sarwar", 42450.00);
+        Optional<Employee> employeeOptional = Optional.of(employee);
+        when(employeeRepository.findById(1)).thenReturn(employeeOptional);
+    }
 
-	@Test
-	@Order(1)
-	public void testGetEmployeeById() {
-		String employee_name = "Rehan Sarwar";
-		Employee employeeId = employeeService.findById(1);
-		assertEquals(employee_name, employeeId.getName());
-	}
+    @Test
+    public void testGetEmployeeById() {
+        String employeeName = "Rehan Sarwar";
+        Employee employee = employeeService.findById(1);
+        assertEquals(employeeName, employee.getName());
+    }
 
-	@Test
-	@Order(2)
-	public void testGetEmployeeByName() {
-		String employeeNameToFind = "Rehan Sarwar";
+    @Test
+    public void testGetEmployeeByName() {
+        String employeeNameToFind = "Rehan Sarwar";
+        List<Employee> employees = List.of(new Employee(1, employeeNameToFind, 42450.00),
+                new Employee(2, employeeNameToFind, 3296.00));
+        when(employeeRepository.findByName(employeeNameToFind)).thenReturn(employees);
 
-		List<Employee> employees = List.of(new Employee(1, employeeNameToFind, 42450.00),
-				new Employee(2, employeeNameToFind, 3296.00));
-		when(employeeRepository.findByName(employeeNameToFind)).thenReturn(employees);
+        List<Employee> foundEmployees = employeeService.findEmployeeByName(employeeNameToFind);
 
-		List<Employee> foundEmployees = employeeService.findEmployeeByName(employeeNameToFind);
+        assertNotNull(foundEmployees);
 
-		assertNotNull(foundEmployees);
+        for (Employee employee : foundEmployees) {
+            assertEquals(employeeNameToFind, employee.getName());
+        }
+    }
 
-		for (Employee employee : foundEmployees) {
-			assertEquals(employeeNameToFind, employee.getName());
-		}
-	}
+    @Test
+    void testGetAllEmployees() {
+        List<Employee> employees = List.of(new Employee(1, "Moni Roy", 12879.00),
+                new Employee(2, "Raju Roy", 32960.00));
 
-	@Test
-	@Order(3)
-	void testGetAllEmployees() {
-		List<Employee> employees = List.of(new Employee(1, "Moni Roy", 12879.00),
-				new Employee(2, "Raju Roy", 32960.00));
+        when(employeeRepository.findAll()).thenReturn(employees);
 
-		when(employeeRepository.findAll()).thenReturn(employees);
+        List<Employee> allEmployees = employeeService.findAllEmployees();
 
-		List<Employee> allEmployees = employeeService.findAllEmployees();
+        assertNotNull(allEmployees);
+        assertEquals(2, allEmployees.size());
+    }
 
-		assertNotNull(allEmployees);
-		assertEquals(2, allEmployees.size());
-	}
+    @Test
+    public void testSaveEmployee() {
+        Employee employee = new Employee("Rehan Sarwar", 42450.00);
+        Employee createEmployee = employeeService.saveEmployee(employee);
 
-	@Test
-	@Order(4)
-	public void testSaveEmployee() {
-		Employee employee = new Employee("Rehan Sarwar", 42450.00);
-		Employee createEmployee = employeeService.saveEmployee(employee);
-
-		assertNotNull(createEmployee.getId());
-		assertEquals(employee.getName(), createEmployee.getName());
-	}
-
+        assertNotNull(createEmployee.getId());
+        assertEquals(employee.getName(), createEmployee.getName());
+    }
 }
