@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -18,88 +17,96 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.model.Employee;
 import com.repository.EmployeeRepository;
 
-import net.bytebuddy.asm.Advice.This;
-
 @SpringBootTest
 class EmployeeServiceTest {
 
-	private EmployeeService employeeService;
+    @Autowired
+    private EmployeeService employeeService;
 
-	@Mock
-	private EmployeeRepository employeeRepository;
+    @Mock
+    private EmployeeRepository employeeRepository;
 
-	@BeforeEach
-	void setup() {
-		MockitoAnnotations.initMocks(this);
-		employeeService = new EmployeeService();
-		Employee employee = new Employee(1, "Rehan Sarwar", 42450.00);
-		Optional<Employee> employeeOptional = Optional.of(employee);
-		when(employeeRepository.findById(1)).thenReturn(employeeOptional);
-	}
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
 
-	@Test
-	public void testGetEmployeeById() {
-		String employeeName = "Rehan Sarwar";
-		Employee employee = employeeService.findById(1);
-		assertEquals(employeeName, employee.getName());
-	}
+    @Test
+    public void testGetEmployeeById() {
+        Integer employeeId = 1;
+        String employeeName = "Rehan Sarwar";
 
-	@Test
-	void testGetAllEmployees() {
-		List<Employee> allEmployees = new ArrayList<>();
+        when(employeeRepository.findById(employeeId))
+                .thenReturn(Optional.of(new Employee(employeeId, employeeName, 42450.00)));
 
-		allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
-		allEmployees.add(new Employee(2, "Sonu Rama", 27250.00));
+        Employee employee = employeeService.findById(employeeId);
 
-		when(employeeRepository.findAll()).thenReturn(allEmployees);
+        assertEquals(employeeName, employee.getName());
+    }
 
-		List<Employee> getAllEmployees = employeeService.findAllEmployees();
+    @Test
+    void testGetAllEmployees() {
+        List<Employee> allEmployees = new ArrayList<>();
+        allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
+        allEmployees.add(new Employee(2, "Sonu Rama", 27250.00));
 
-		assertNotNull(getAllEmployees);
-		assertEquals(2, allEmployees.size());
-	}
+        when(employeeRepository.findAll()).thenReturn(allEmployees);
 
-	@Test
-	public void testSaveEmployee() {
-		Employee employee = new Employee("Rehan Sarwar", 42450.00);
-		Employee createEmployee = employeeService.saveEmployee(employee);
+        List<Employee> getAllEmployees = employeeService.findAllEmployees();
 
-		assertNotNull(createEmployee.getId());
-		assertEquals(employee.getName(), createEmployee.getName());
-	}
+        assertNotNull(getAllEmployees);
+        assertEquals(2, getAllEmployees.size());
+    }
 
-	@Test
-	public void testGetEmployeeByName() {
-		String employeeNameToFind = "Rehan Sarwar";
-		List<Employee> employees = List.of(new Employee(1, employeeNameToFind, 42450.00),
-				new Employee(2, employeeNameToFind, 3296.00));
-		when(employeeRepository.findByName(employeeNameToFind)).thenReturn(employees);
+    @Test
+    public void testSaveEmployee() {
+        Employee employee = new Employee("Rehan Sarwar", 42450.00);
 
-		List<Employee> foundEmployees = employeeService.findEmployeeByName(employeeNameToFind);
+        when(employeeRepository.save(employee)).thenReturn(new Employee(1, employee.getName(), employee.getSalary()));
 
-		assertNotNull(foundEmployees);
+        Employee createEmployee = employeeService.saveEmployee(employee);
 
-		for (Employee employee : foundEmployees) {
-			assertEquals(employeeNameToFind, employee.getName());
-		}
-	}
+        assertNotNull(createEmployee.getId());
+        assertEquals(employee.getName(), createEmployee.getName());
+    }
 
-	@Test
-	public void testDeleteEmployee() {
-		Integer employeeIdToDelete = 1;
+    @Test
+    public void testGetEmployeeByName() {
+        String employeeNameToFind = "Rehan Sarwar";
+        List<Employee> employees = List.of(
+                new Employee(1, employeeNameToFind, 42450.00),
+                new Employee(2, employeeNameToFind, 3296.00)
+        );
 
-		when(employeeRepository.findById(employeeIdToDelete))
-				.thenReturn(Optional.of(new Employee(employeeIdToDelete, "Rehan Sarwar", 42450.00)));
+        when(employeeRepository.findByName(employeeNameToFind)).thenReturn(employees);
 
-		String isDeleted = employeeService.deteteEmployee(employeeIdToDelete);
+        List<Employee> foundEmployees = employeeService.findEmployeeByName(employeeNameToFind);
 
-		assertEquals("Employee deleted successfully", isDeleted);
+        assertNotNull(foundEmployees);
 
-		// Verify that the employee is no longer in the database
-		when(employeeRepository.findById(employeeIdToDelete)).thenReturn(Optional.empty());
-		Optional<Employee> deletedEmployeeOptional = Optional.of(employeeService.findById(employeeIdToDelete));
+        for (Employee employee : foundEmployees) {
+            assertEquals(employeeNameToFind, employee.getName());
+        }
+    }
 
-		assertFalse(deletedEmployeeOptional.isPresent());
-	}
+    @Test
+    public void testDeleteEmployee() {
+        Integer employeeIdToDelete = 1;
 
+        when(employeeRepository.findById(employeeIdToDelete))
+                .thenReturn(Optional.of(new Employee(employeeIdToDelete, "Rehan Sarwar", 42450.00)));
+
+        when(employeeRepository.existsById(employeeIdToDelete)).thenReturn(true);
+        
+        String isDeleted = employeeService.deleteEmployee(employeeIdToDelete);
+
+        assertEquals("Employee deleted successfully", isDeleted);
+
+        // Verify that the employee is no longer in the database
+        when(employeeRepository.existsById(employeeIdToDelete)).thenReturn(false);
+        
+        Optional<Employee> deletedEmployeeOptional = Optional.ofNullable(employeeService.findById(employeeIdToDelete));
+
+        assertFalse(deletedEmployeeOptional.isPresent());
+    }
 }
