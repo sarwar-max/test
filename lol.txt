@@ -1,81 +1,12 @@
-package com.service;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import com.model.Employee;
-import com.repository.EmployeeRepository;
-
-@SpringBootTest
-class EmployeeServiceTest {
-
-    @Autowired
-    private EmployeeService employeeService;
-
-    @Mock
-    private EmployeeRepository employeeRepository;
-
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.initMocks(this); // Initialize Mockito annotations
-        Employee employee = new Employee(1, "Rehan Sarwar", 42450.00);
-        Optional<Employee> employeeOptional = Optional.of(employee);
-        when(employeeRepository.findById(1)).thenReturn(employeeOptional);
-    }
-
-    @Test
-    public void testGetEmployeeById() {
-        String employeeName = "Rehan Sarwar";
-        Employee employee = employeeService.findById(1);
-        assertEquals(employeeName, employee.getName());
-    }
-
-    @Test
-    public void testGetEmployeeByName() {
-        String employeeNameToFind = "Rehan Sarwar";
-        List<Employee> employees = List.of(new Employee(1, employeeNameToFind, 42450.00),
-                new Employee(2, employeeNameToFind, 3296.00));
-        when(employeeRepository.findByName(employeeNameToFind)).thenReturn(employees);
-
-        List<Employee> foundEmployees = employeeService.findEmployeeByName(employeeNameToFind);
-
-        assertNotNull(foundEmployees);
-
-        for (Employee employee : foundEmployees) {
-            assertEquals(employeeNameToFind, employee.getName());
-        }
-    }
-
-    @Test
-    void testGetAllEmployees() {
-        List<Employee> employees = List.of(new Employee(1, "Moni Roy", 12879.00),
-                new Employee(2, "Raju Roy", 32960.00));
-
-        when(employeeRepository.findAll()).thenReturn(employees);
-
-        List<Employee> allEmployees = employeeService.findAllEmployees();
-
-        assertNotNull(allEmployees);
-        assertEquals(2, allEmployees.size());
-    }
-
-    @Test
-    public void testSaveEmployee() {
-        Employee employee = new Employee("Rehan Sarwar", 42450.00);
-        Employee createEmployee = employeeService.saveEmployee(employee);
-
-        assertNotNull(createEmployee.getId());
-        assertEquals(employee.getName(), createEmployee.getName());
-    }
-}
+	@Test
+	public void testDeleteEmployee() {
+		Integer employeeIdToDelete = 1;
+		
+		String isDeleted = employeeService.deteteEmployee(employeeIdToDelete);
+		
+		assertEquals("Employee deleted successfully", isDeleted);
+		
+		Optional<Employee> deletedEmployeeOptional = Optional.of(employeeService.findById(employeeIdToDelete));
+		
+		assertFalse(deletedEmployeeOptional.isPresent());
+	}
