@@ -1,12 +1,49 @@
-@Test
-@Rollback(false)
-public void testUpdateProduct() {
-    Product product = repo.findByName("iPhone 10");
-    product.setPrice(1000);
-     
-    repo.save(product);
-     
-    Product updatedProduct = repo.findByName("iPhone 10");
-     
-    assertThat(updatedProduct.getPrice()).isEqualTo(1000);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.model.Employee;
+import com.repository.EmployeeRepository;
+import com.service.EmployeeService;
+
+@SpringBootTest
+@Transactional // To enable transactional behavior for the test
+class EmployeeServiceTest {
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @BeforeEach
+    void setUp() {
+        // Add test data if needed before each test
+    }
+
+    // Other test methods...
+
+    @Test
+    public void testUpdateEmployee() {
+        // Assuming you have an employee named "Rehan Sarwar" in the database
+        Employee existingEmployee = employeeService.findById(1);
+        
+        // Update the employee's salary
+        existingEmployee.setSalary(50000.00);
+
+        // Save the updated employee
+        employeeService.updateEmployee(existingEmployee);
+
+        // Retrieve the updated employee from the database
+        Employee updatedEmployee = employeeService.findById(1);
+
+        // Assertions
+        assertNotNull(updatedEmployee);
+        assertThat(updatedEmployee.getSalary()).isEqualTo(50000.00);
+    }
 }
