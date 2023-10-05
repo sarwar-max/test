@@ -1,121 +1,64 @@
-package com.service;
+package com.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
+import java.awt.PageAttributes.MediaType;
 import java.util.List;
-import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.model.Employee;
-import com.repository.EmployeeRepository;
+import com.service.IEmployeeService;
 
-@SpringBootTest
-class EmployeeServiceTest {
+@RestController
+@Scope("request")
+public class EmployeeController {
 
 	@Autowired
-	private EmployeeService employeeService;
+	@Qualifier("employeeService")
+	private IEmployeeService employeeService;
 
-	@Mock
-	private EmployeeRepository employeeRepository;
-
-	@BeforeEach
-	void setup() {
-
-		Employee employee = new Employee(2, "Mohit Raz", 25422.00);
-		Optional<Employee> employeeOptional = Optional.of(employee);
-		when(employeeRepository.findById(2)).thenReturn(employeeOptional);
+	@PostMapping(value = "/saveEmployee", produces = "application/json", consumes = "application/json")
+	public Employee saveEmployee(@RequestBody Employee employee) {
+		return employeeService.saveEmployee(employee);
 	}
 
-	@Test
-	public void testGetEmployeeById() {
-		String employeeName = "Mohit Raz";
-		Employee employeeID = employeeService.findById(2);
-		assertEquals(employeeName, employeeID.getName());
+	@PostMapping(value = "/saveEmployees", produces = "application/json", consumes = "application/json")
+	public List<Employee> saveEmployees(@RequestBody List<Employee> employees) {
+		return employeeService.saveEmployees(employees);
 	}
 
-	@Test
-	void testGetAllEmployees() {
-		List<Employee> allEmployees = new ArrayList<>();
-
-		allEmployees.add(new Employee(1, "Arjun Sharma", 47550.00));
-		allEmployees.add(new Employee(2, "Sonu Rama", 27250.00));
-
-		when(employeeRepository.findAll()).thenReturn(allEmployees);
-
-		List<Employee> getAllEmployees = employeeService.findAllEmployees();
-
-		assertNotNull(getAllEmployees);
-		assertEquals(2, allEmployees.size());
+	@GetMapping(value = "/findAllEmployees", produces = "application/json", consumes = "application/json")
+	public List<Employee> findAEmployees() {
+		return employeeService.findAllEmployees();
 	}
 
-	@Test
-	public void testSaveEmployee() {
-		Employee employee = new Employee("Rehan Sarwar", 42450.00);
-		Employee createEmployee = employeeService.saveEmployee(employee);
-
-		assertNotNull(createEmployee.getId());
-		assertEquals(employee.getName(), createEmployee.getName());
+	@GetMapping(value = "/getEmployeeById/{id}", produces = "application/json", consumes = "application/json")
+	public Employee getEmployeeById(@PathVariable Integer id) {
+		return employeeService.findById(id);
 	}
 
-	@Test
-	public void testUpdateEmployee() {
-
-		// Assuming you have an employee named "Rehan Sarwar" having ID 1
-		Employee existingEmployee = employeeService.findById(1);
-
-		// Update the employee's salary
-		existingEmployee.setSalary(50000.00);
-
-		// Save the updated employee
-		employeeService.updateEmployee(existingEmployee);
-
-		// Retrieve the updated employee from the database
-		Employee updatedEmployee = employeeService.findById(1);
-
-		// Assertions
-		assertNotNull(updatedEmployee);
-		assertThat(updatedEmployee.getSalary()).isEqualTo(50000.00);
+	@GetMapping(value = "/findEmployeeByName/{name}", produces = "application/json", consumes = "application/json")
+	public List<Employee> findEmployeeByName(@PathVariable String name) {
+		return employeeService.findEmployeeByName(name);
 	}
 
-	@Test
-	public void testGetEmployeeByName() {
-		String employeeNameToFind = "Rehan Sarwar";
-		List<Employee> employees = List.of(new Employee(1, employeeNameToFind, 42450.00),
-				new Employee(2, employeeNameToFind, 3296.00));
-		when(employeeRepository.findByName(employeeNameToFind)).thenReturn(employees);
-
-		List<Employee> foundEmployees = employeeService.findEmployeeByName(employeeNameToFind);
-
-		assertNotNull(foundEmployees);
-
-		for (Employee employee : foundEmployees) {
-			assertEquals(employeeNameToFind, employee.getName());
-		}
+	@PutMapping(value = "/updateEmployee", produces = "application/json", consumes = "application/json")
+	public Employee updateEmployee(@RequestBody Employee employee) {
+		return employeeService.updateEmployee(employee);
 	}
 
-	@Test
-	public void testDeleteEmployee() {
-		Integer employeeIdToDelete = 1;
-		Employee employeeToDelete = new Employee(employeeIdToDelete, "Rehan Sarwar", 42450.00);
-
-		when(employeeRepository.findById(employeeIdToDelete)).thenReturn(Optional.of(employeeToDelete));
-		when(employeeRepository.existsById(employeeIdToDelete)).thenReturn(true);
-
-		String deleteResult = employeeService.deteteEmployee(employeeIdToDelete);
-
-		assertEquals("SuccessFully Deleted", deleteResult);
-
+	@DeleteMapping(value = "/deteteEmployee/{id}", produces = "application/json", consumes = "application/json")
+	public String deteteEmployee(@PathVariable Integer id) {
+		employeeService.deteteEmployee(id);
+		return "SuccessFully Deleted";
 	}
 
 }
