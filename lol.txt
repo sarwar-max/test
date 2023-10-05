@@ -1,55 +1,57 @@
-package com.controller;
+package com.service;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import com.model.Employee;
-import com.service.IEmployeeService;
-import org.springframework.http.MediaType;
+import com.repository.EmployeeRepository;
 
-@RestController
-public class EmployeeController {
+@Service("employeeService")
+@Scope("singleton")
+public class EmployeeService implements IEmployeeService {
+	
+	@Autowired
+	@Qualifier("employeeRepository")
+	private EmployeeRepository employeeRepository;
 
-    @Autowired
-    @Qualifier("employeeService")
-    private IEmployeeService employeeService;
+	@Override
+	public Employee saveEmployee(Employee employee) {
+		return employeeRepository.save(employee);
+	}
 
-    @PostMapping(value = "/saveEmployee", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Employee saveEmployee(@RequestBody Employee employee) {
-        return employeeService.saveEmployee(employee);
-    }
+	@Override
+	public List<Employee> saveEmployees(List<Employee> employees) {
+		return employeeRepository.saveAll(employees);
+	}
 
-    @PostMapping(value = "/saveEmployees", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<Employee> saveEmployees(@RequestBody List<Employee> employees) {
-        return employeeService.saveEmployees(employees);
-    }
+	@Override
+	public List<Employee> findAllEmployees() {
+		return employeeRepository.findAll();
+	}
 
-    @GetMapping(value = "/findAllEmployees", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Employee> findAllEmployees() {
-        return employeeService.findAllEmployees();
-    }
+	@Override
+	public List<Employee> findEmployeeByName(String name) {
+		return employeeRepository.findByName(name);
+	}
 
-    @GetMapping(value = "/getEmployeeById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Employee getEmployeeById(@PathVariable Integer id) {
-        return employeeService.findById(id);
-    }
+	@Override
+	public Employee updateEmployee(Employee employee) {
+		return employeeRepository.save(employee);
+	}
 
-    @GetMapping(value = "/findEmployeeByName/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Employee> findEmployeeByName(@PathVariable String name) {
-        return employeeService.findEmployeeByName(name);
-    }
+	@Override
+	public String deteteEmployee(Integer id) {
+		employeeRepository.deleteById(id);
+		return "SuccessFully Deleted";
+	}
 
-    @PutMapping(value = "/updateEmployee", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Employee updateEmployee(@RequestBody Employee employee) {
-        return employeeService.updateEmployee(employee);
-    }
+	@Override
+	public Employee findById(Integer id) {
+		return employeeRepository.findById(id).orElse(null);
+	}
 
-    @DeleteMapping(value = "/deleteEmployee/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String deleteEmployee(@PathVariable Integer id) {
-        employeeService.deleteEmployee(id);
-        return "Successfully Deleted";
-    }
 }
