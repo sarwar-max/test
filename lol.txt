@@ -1,15 +1,17 @@
-@GetMapping("/{id}")
-public ResponseEntity<?> getEmployeeById(@PathVariable Integer id) {
-    try {
-        Employee employee = employeeService.findById(id);
-        if (employee != null) {
-            return new ResponseEntity<>(employee, HttpStatus.OK);
-        } else {
-            String errorMessage = "Employee with ID " + id + " not found";
-            return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
-        }
-    } catch (Exception e) {
-        // Handle any other exceptions that might occur during retrieval
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+package com.service;
+
+import java.util.List;
+
+import com.model.Employee;
+
+public interface IEmployeeService {
+	
+	public Employee saveEmployee(Employee employee);
+	public List<Employee> saveEmployees(List<Employee> employees);
+	public List<Employee> findAllEmployees();
+	public List<Employee> findEmployeeByName(String name); //EmployeeRepository
+	public Employee findById(Integer id);
+	public Employee updateEmployee(Employee employee);
+	public void deteteEmployee(Integer id);
+
 }
