@@ -1,64 +1,55 @@
 package com.controller;
 
-import java.awt.PageAttributes.MediaType;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Scope;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.model.Employee;
 import com.service.IEmployeeService;
+import org.springframework.http.MediaType;
 
 @RestController
-@Scope("request")
 public class EmployeeController {
 
-	@Autowired
-	@Qualifier("employeeService")
-	private IEmployeeService employeeService;
+    @Autowired
+    @Qualifier("employeeService")
+    private IEmployeeService employeeService;
 
-	@PostMapping(value = "/saveEmployee", produces = "application/json", consumes = "application/json")
-	public Employee saveEmployee(@RequestBody Employee employee) {
-		return employeeService.saveEmployee(employee);
-	}
+    @PostMapping(value = "/saveEmployee", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Employee saveEmployee(@RequestBody Employee employee) {
+        return employeeService.saveEmployee(employee);
+    }
 
-	@PostMapping(value = "/saveEmployees", produces = "application/json", consumes = "application/json")
-	public List<Employee> saveEmployees(@RequestBody List<Employee> employees) {
-		return employeeService.saveEmployees(employees);
-	}
+    @PostMapping(value = "/saveEmployees", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public List<Employee> saveEmployees(@RequestBody List<Employee> employees) {
+        return employeeService.saveEmployees(employees);
+    }
 
-	@GetMapping(value = "/findAllEmployees", produces = "application/json", consumes = "application/json")
-	public List<Employee> findAEmployees() {
-		return employeeService.findAllEmployees();
-	}
+    @GetMapping(value = "/findAllEmployees", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Employee> findAllEmployees() {
+        return employeeService.findAllEmployees();
+    }
 
-	@GetMapping(value = "/getEmployeeById/{id}", produces = "application/json", consumes = "application/json")
-	public Employee getEmployeeById(@PathVariable Integer id) {
-		return employeeService.findById(id);
-	}
+    @GetMapping(value = "/getEmployeeById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Employee getEmployeeById(@PathVariable Integer id) {
+        return employeeService.findById(id);
+    }
 
-	@GetMapping(value = "/findEmployeeByName/{name}", produces = "application/json", consumes = "application/json")
-	public List<Employee> findEmployeeByName(@PathVariable String name) {
-		return employeeService.findEmployeeByName(name);
-	}
+    @GetMapping(value = "/findEmployeeByName/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Employee> findEmployeeByName(@PathVariable String name) {
+        return employeeService.findEmployeeByName(name);
+    }
 
-	@PutMapping(value = "/updateEmployee", produces = "application/json", consumes = "application/json")
-	public Employee updateEmployee(@RequestBody Employee employee) {
-		return employeeService.updateEmployee(employee);
-	}
+    @PutMapping(value = "/updateEmployee", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Employee updateEmployee(@RequestBody Employee employee) {
+        return employeeService.updateEmployee(employee);
+    }
 
-	@DeleteMapping(value = "/deteteEmployee/{id}", produces = "application/json", consumes = "application/json")
-	public String deteteEmployee(@PathVariable Integer id) {
-		employeeService.deteteEmployee(id);
-		return "SuccessFully Deleted";
-	}
-
+    @DeleteMapping(value = "/deleteEmployee/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String deleteEmployee(@PathVariable Integer id) {
+        employeeService.deleteEmployee(id);
+        return "Successfully Deleted";
+    }
 }
