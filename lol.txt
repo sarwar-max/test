@@ -1,7 +1,6 @@
 package com.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,12 +10,10 @@ import org.springframework.stereotype.Service;
 import com.model.Employee;
 import com.repository.EmployeeRepository;
 
-import jakarta.transaction.Transactional;
-
 @Service("employeeService")
 @Scope("singleton")
 public class EmployeeService implements IEmployeeService {
-	
+
 	@Autowired
 	@Qualifier("employeeRepository")
 	private EmployeeRepository employeeRepository;
@@ -45,30 +42,15 @@ public class EmployeeService implements IEmployeeService {
 	public Employee updateEmployee(Employee employee) {
 		return employeeRepository.save(employee);
 	}
-	
+
 	@Override
 	public Employee findById(Integer id) {
 		return employeeRepository.findById(id).orElse(null);
 	}
 
-
-	
 	@Override
-	@Transactional
 	public void deteteEmployee(Integer id) {
-		try {
-		// Check if the employee exists
-		Optional<Employee> existingEmployee = Optional.of(findById(id));
-		if(existingEmployee.isPresent()) {
-			employeeRepository.deleteById(id);
-		}else {
-			throw new IllegalArgumentException("Employee not found for deletion");
-		}
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+		employeeRepository.deleteById(id);
 	}
-
-	
 
 }
