@@ -1,6 +1,7 @@
 package com.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,43 +15,49 @@ import com.repository.EmployeeRepository;
 @Scope("singleton")
 public class EmployeeService implements IEmployeeService {
 
-	@Autowired
-	@Qualifier("employeeRepository")
-	private EmployeeRepository employeeRepository;
+    @Autowired
+    @Qualifier("employeeRepository")
+    private EmployeeRepository employeeRepository;
 
-	@Override
-	public Employee saveEmployee(Employee employee) {
-		return employeeRepository.save(employee);
-	}
+    @Override
+    public Employee saveEmployee(Employee employee) {
+        return employeeRepository.save(employee);
+    }
 
-	@Override
-	public List<Employee> saveEmployees(List<Employee> employees) {
-		return employeeRepository.saveAll(employees);
-	}
+    @Override
+    public List<Employee> saveEmployees(List<Employee> employees) {
+        return employeeRepository.saveAll(employees);
+    }
 
-	@Override
-	public List<Employee> findAllEmployees() {
-		return employeeRepository.findAll();
-	}
+    @Override
+    public List<Employee> findAllEmployees() {
+        return employeeRepository.findAll();
+    }
 
-	@Override
-	public List<Employee> findEmployeeByName(String name) {
-		return employeeRepository.findByName(name);
-	}
+    @Override
+    public List<Employee> findEmployeeByName(String name) {
+        return employeeRepository.findByName(name);
+    }
 
-	@Override
-	public Employee updateEmployee(Employee employee) {
-		return employeeRepository.save(employee);
-	}
+    @Override
+    public Employee updateEmployee(Employee employee) {
+        return employeeRepository.save(employee);
+    }
 
-	@Override
-	public Employee findById(Integer id) {
-		return employeeRepository.findById(id).orElse(null);
-	}
+    @Override
+    public Employee findById(Integer id) {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        return employee.orElse(null); // Return null if the employee is not found
+    }
 
-	@Override
-	public void deteteEmployee(Integer id) {
-		employeeRepository.deleteById(id);
-	}
-
+    @Override
+    public void deteteEmployee(Integer id) {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        if (employee.isPresent()) {
+            employeeRepository.deleteById(id);
+        } else {
+            // Handle the case when the employee with the specified ID is not found
+            throw new IllegalArgumentException("Employee with ID " + id + " not found");
+        }
+    }
 }
