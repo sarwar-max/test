@@ -1,17 +1,80 @@
-package com.service;
+package com.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.*;
+
 import com.model.Employee;
+import com.service.EmployeeService;
+import com.service.IEmployeeService;
 
-public interface IEmployeeService {
-	
-	public Employee saveEmployee(Employee employee);
-	public List<Employee> saveEmployees(List<Employee> employees);
-	public List<Employee> findAllEmployees();
-	public List<Employee> findEmployeeByName(String name); //EmployeeRepository
-	public Employee findById(Integer id);
-	public Employee updateEmployee(Employee employee);
-	public void deteteEmployee(Integer id);
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+@RestController
+public class EmployeeController {
+
+    @Autowired
+    @Qualifier("employeeService")
+    private IEmployeeService employeeService;
+    
+    
+    @PostMapping(value = "/saveEmployee", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Employee saveEmployee(@RequestBody Employee employee) {
+        return employeeService.saveEmployee(employee);
+    }
+
+    @PostMapping(value = "/saveEmployees", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public List<Employee> saveEmployees(@RequestBody List<Employee> employees) {
+        return employeeService.saveEmployees(employees);
+    }
+
+    @GetMapping(value = "/findAllEmployees", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Employee> findAllEmployees() {
+        return employeeService.findAllEmployees();
+    }
+
+
+    @PutMapping(value = "/updateEmployee", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Employee updateEmployee(@RequestBody Employee employee) {
+        return employeeService.updateEmployee(employee);
+    }
+    
+    @GetMapping(value = "/findEmployeeByName/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Employee>> findEmployeeByName(@PathVariable String name) {
+       List<Employee> employees = employeeService.findEmployeeByName(name);
+       if (!employees.isEmpty()) {
+		return ResponseEntity.ok(employees);
+	} else {
+		return (ResponseEntity<List<Employee>>) ResponseEntity.status(HttpStatus.NOT_FOUND);
+	}
+    }
+    
+    @GetMapping(value = "/getEmployeeById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Integer id) {
+        try {
+			Employee employee = employeeService.findById(id);
+			return new ResponseEntity<>(employee, HttpStatus.OK);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+    }
+
+    @DeleteMapping(value = "/deleteEmployee/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> deleteEmployee(@PathVariable Integer id) {
+        try {
+			employeeService.deteteEmployee(id);
+			return new ResponseEntity<>("Employee deleted successfully", HttpStatus.OK);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity<>("Employee not found for deletion", HttpStatus.NOT_FOUND);
+		}catch (Exception e) {
+			return new ResponseEntity<>("An error occurred during deletion", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+    }
 }
